@@ -22,7 +22,6 @@ public class LoginServiceImpl implements LoginService{
 	
 	@Autowired
 	JwtUtil jwtUtil;
-	
 	@Override
 	public User createNewUser(User user) {
 		UserEntity userEntity = this.modelMapper.map(user, UserEntity.class);
