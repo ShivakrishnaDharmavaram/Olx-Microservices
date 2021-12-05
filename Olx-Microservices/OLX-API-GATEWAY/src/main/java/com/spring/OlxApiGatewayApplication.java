@@ -14,4 +14,4 @@ public class OlxApiGatewayApplication {
 
 }
 
-//http://localhost:9411/zipkin/
+//http://localhost:9411/zipkin
