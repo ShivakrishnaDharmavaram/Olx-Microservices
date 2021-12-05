@@ -11,8 +11,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer>{
 	List<UserEntity> findByUsername(String username);
 	
 	@Query(value="SELECT COUNT(id) FROM users", nativeQuery = true)
-	Integer countOfUsers();
+	Integer UserCount();
 	
-	@Query(value="select count(id) from users where active=true", nativeQuery = true)
-	Integer countOfActiveUsers();
+	@Query(value="select count(id) FROM users where active=true", nativeQuery = true)
+	Integer activeUsersCount();
 }
