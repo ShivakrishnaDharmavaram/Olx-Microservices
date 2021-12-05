@@ -1,0 +1,21 @@
+server:
+  port: 9070
+  
+spring:
+  application:
+      name: masterdata-service
+  config:
+     import: configserver:http://localhost:8888
+  zipkin:
+    base-url: http://localhost:9411          
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"      base-path: /olx-masterdata
+       
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
