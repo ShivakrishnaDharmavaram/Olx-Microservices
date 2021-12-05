@@ -50,7 +50,18 @@ public class AdvertisesServiceImp implements AdvertisesService {
 		return advertise;
 	}
 
-
+	public String[] getUsername(String authToken) {
+		String token = authToken.substring(authToken.indexOf(' ') + 1);
+		String usernameWithName = loginDelegate.getUsername(token);
+		String[] names = new String[2];
+		String name = usernameWithName.substring(0, usernameWithName.indexOf(':'));
+		names[0] = name;
+		String username = usernameWithName.substring(usernameWithName.indexOf(':') + 1);
+		names[1] = username;
+		System.out.println("Name : " + name);
+		System.out.println("Username : " + username);
+		return names;
+	}
 	@Override
 	public Advertise createNewAdvertise(String authToken,Advertise advertise) {
 		//call OLX- Log in
@@ -62,9 +73,6 @@ public class AdvertisesServiceImp implements AdvertisesService {
 		String[] names = getUsername(authToken);
 		advertise.setUsername(names[1]);
 		AdvertiseEntity advertiseEntity = this.modelMapper.map(advertise, AdvertiseEntity.class);
-		advertiseEntity.setPostedBy(names[0]);
-		advertiseEntity.setUsername(names[1]);
-		advertiseEntity.setActive("1");
 		advertiseEntity = this.advertiseRepository.save(advertiseEntity);
 		advertise.setId(advertiseEntity.getId());
 		return advertise;
@@ -89,7 +97,6 @@ public class AdvertisesServiceImp implements AdvertisesService {
 				advertise.setUsername(advertiseEntity.getUsername());
 			AdvertiseEntity updatedAdvEntity = this.modelMapper.map(advertise, AdvertiseEntity.class);
 			updatedAdvEntity.setPostedBy(advertiseEntity.getPostedBy());
-			updatedAdvEntity.setActive("1");
 			updatedAdvEntity = advertiseRepository.save(updatedAdvEntity);
 			Advertise advertiseDto = this.modelMapper.map(updatedAdvEntity, Advertise.class);
 			advertiseDto = getStatusAndCategoryName(advertiseDto);
@@ -264,18 +271,7 @@ public class AdvertisesServiceImp implements AdvertisesService {
 		return advertises;
 	}
 
-	public String[] getUsername(String authToken) {
-		String token = authToken.substring(authToken.indexOf(' ') + 1);
-		String usernameWithName = loginDelegate.getUsername(token);
-		String[] names = new String[2];
-		String name = usernameWithName.substring(0, usernameWithName.indexOf(':'));
-		names[0] = name;
-		String username = usernameWithName.substring(usernameWithName.indexOf(':') + 1);
-		names[1] = username;
-		System.out.println("Name : " + name);
-		System.out.println("Username : " + username);
-		return names;
-	}
+	
 
 
 }	
