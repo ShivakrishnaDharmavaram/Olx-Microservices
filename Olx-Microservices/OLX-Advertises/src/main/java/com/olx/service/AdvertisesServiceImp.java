@@ -115,7 +115,7 @@ public class AdvertisesServiceImp implements AdvertisesService {
 	}
 
 	@Override
-	public Advertise getAdvertiseByUserPostId(String authToken, int postId) {
+	public Advertise getAdvertiseByUserId(String authToken, int postId) {
 		if (!loginDelegate.isValidToken(authToken))
 			throw new InvalidUserException(authToken);
 		Optional<AdvertiseEntity> entity = advertiseRepository.findById(postId);
@@ -133,7 +133,7 @@ public class AdvertisesServiceImp implements AdvertisesService {
 	}
 
 	@Override
-	public boolean deleteAdvertiseByPostId(String authToken, int postId) {
+	public boolean deleteAdvertiseById(String authToken, int postId) {
 		if (!loginDelegate.isValidToken(authToken))
 			throw new InvalidUserException(authToken);
 		try {
@@ -144,83 +144,9 @@ public class AdvertisesServiceImp implements AdvertisesService {
 		}
 	}
 
-	@Override
-	public List<Advertise> getAdvertiseByCriteria(String searchText, String category, String postedBy,
-			String dateCondition, String onDate, String fromDate, String toDate, String sortBy, int startIndex,
-			int records) {
-
-		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-		CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(AdvertiseEntity.class);
-		Root<AdvertiseEntity> rootEntity = criteriaQuery.from(AdvertiseEntity.class);
-		Predicate finalPredicate = null;
-
-		if (searchText != null) {
-			Predicate predicateSearchText = criteriaBuilder.like(rootEntity.<String>get("title"),
-					"%" + searchText + "%");
-			finalPredicate = criteriaBuilder.and(predicateSearchText);
-		}
-		if (category != null) {
-			Integer categoryId = masterDataDelegate.getCategoryIdByName(category);
-			Predicate predicateCategory = criteriaBuilder.equal(rootEntity.get("category"), categoryId);
-			finalPredicate = criteriaBuilder.and(predicateCategory);
-		}
-		if (postedBy != null) {
-			Predicate predicatePostedBy = criteriaBuilder.like(rootEntity.<String>get("postedBy"),
-					"%" + postedBy + "%");
-			finalPredicate = criteriaBuilder.and(predicatePostedBy);
-		}
-		if (dateCondition != null) {
-
-			LocalDate mOnDate, mFromDate, mToDate;
-
-			if (dateCondition.equalsIgnoreCase("equalsAndOnDate") && onDate != null) {
-				mOnDate = LocalDate.parse(onDate);
-				Predicate predicateEqualsAndOnDate = criteriaBuilder.equal(rootEntity.<LocalDate>get("createdDate"), mOnDate);
-				finalPredicate = criteriaBuilder.and(predicateEqualsAndOnDate);
-			}
-
-			else if (dateCondition.equalsIgnoreCase("greaterThanAndFromDate") && fromDate != null) {
-				mFromDate = LocalDate.parse(fromDate);
-				Predicate predicateGreaterThanAndFromDate = criteriaBuilder
-						.greaterThanOrEqualTo(rootEntity.<LocalDate>get("createdDate"), mFromDate);
-				finalPredicate = criteriaBuilder.and(predicateGreaterThanAndFromDate);
-			}
-
-			else if (dateCondition.equalsIgnoreCase("lessThanAndFromDate") && fromDate != null) {
-				mFromDate = LocalDate.parse(fromDate);
-				Predicate predicateLessThanAndFromDate = criteriaBuilder
-						.lessThanOrEqualTo(rootEntity.<LocalDate>get("createdDate"), mFromDate);
-				finalPredicate = criteriaBuilder.and(predicateLessThanAndFromDate);
-			}
-
-			else if (dateCondition.equalsIgnoreCase("betweenAndFromDate") && fromDate != null && toDate != null) {
-				mFromDate = LocalDate.parse(fromDate);
-				mToDate = LocalDate.parse(toDate);
-				Predicate predicateBetweenAndFromDate = criteriaBuilder
-						.between(rootEntity.<LocalDate>get("createdDate"), mFromDate, mToDate);
-				finalPredicate = criteriaBuilder.and(predicateBetweenAndFromDate);
-			}
-		}
-
-		criteriaQuery.where(finalPredicate);
-		TypedQuery<AdvertiseEntity> query = entityManager.createQuery(criteriaQuery);
-		query.setFirstResult(startIndex);
-		query.setMaxResults(records);
-		List<AdvertiseEntity> advertiseEntityList = query.getResultList();
-		List<Advertise> searchedAdvertises = getDtoOfEntityList(advertiseEntityList);
-		if (sortBy != null) {
-			if (sortBy.equalsIgnoreCase("Higher")) {
-				Collections.sort(searchedAdvertises,
-						Collections.reverseOrder(Comparator.comparingDouble(Advertise::getPrice)));
-			} else {
-				Collections.sort(searchedAdvertises, Comparator.comparingDouble(Advertise::getPrice));
-			}
-		}
-		return searchedAdvertises;
-	}
 
 	@Override
-	public Advertise getAdvertiseByPostId(String authToken, int postId) {
+	public Advertise getAdvertiseById(String authToken, int postId) {
 		if (!loginDelegate.isValidToken(authToken))
 			throw new InvalidUserException(authToken);
 		Optional<AdvertiseEntity> entity = advertiseRepository.findById(postId);
