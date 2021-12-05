@@ -1,17 +1,26 @@
 package com.olx.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.olx.dto.Advertise;
 import com.olx.service.AdvertisesService;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/olx/advertise")
@@ -25,74 +34,49 @@ public class AdvertiesesController {
 	
 	
 	
-	@PostMapping(value="/", produces = MediaType.APPLICATION_JSON_VALUE,consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/", consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<Advertise> createNewAdvertises(@RequestHeader("auth-token")String authToken,
 			@RequestBody Advertise advertise) {
 		return new ResponseEntity(advertisesService.createNewAdvertise(authToken, advertise),HttpStatus.CREATED);
 	}
-	/*
 	
-	@GetMapping(value="/advertises/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Advertise getAdvertiseById(@PathVariable("id") int advertiseId) {
-		return advertisesService.getAdvertiseById(advertiseId);
+	@GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Advertise> getAdvertiseBySearchText(@RequestParam("searchText") String searchText) {
+		return advertisesService.getAdvertiseBySearchText(searchText);
+	}
+	@DeleteMapping(value = "/{postId}")
+	public ResponseEntity<Boolean> deleteAdvertiseById(@RequestHeader("auth-token") String authToken,
+			@PathVariable("postId") int postId) {
+		Boolean isDeleted = advertisesService.deleteAdvertiseById(authToken, postId);
+		return new ResponseEntity<Boolean>(isDeleted, HttpStatus.OK);
 	}
 	
-	@GetMapping(value="/advertises", produces=MediaType.APPLICATION_JSON_VALUE)
-	public List<Advertise> getAllAdvertises(){
-		return advertisesService.getAllAdvertises();
-				//new ArrayList<Advertise>();//
-		}
-	
-	@DeleteMapping(value="/advertises")
-	public boolean deleteAllAdvertises() {
-		return advertisesService.deleteAllAdvertises();
+	@GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<Advertise>> getAllAdvertises(@RequestHeader("auth-token") String authToken) {
+		List<Advertise> listOfAdvertise = advertisesService.getAllAdvertises(authToken);
+		return new ResponseEntity<List<Advertise>>(listOfAdvertise, HttpStatus.OK);
 	}
 	
-	@DeleteMapping(value="/advertises/{id}")
-	public boolean deleteAdvertiseById(@PathVariable("id") int advertiseId) {
-		return advertisesService.deleteAdvertiseById(advertiseId);
-	}
-	
-	@PutMapping(value="/advertises/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Advertise updateAdvertises(@PathVariable("id") int advertiseId, @RequestBody Advertise advertise) {
-		return advertisesService.updateAdvertise(advertiseId, advertise);
-	}
-	/*
-	//7
-	static List<Advertise> advertises= new ArrayList<Advertise>();
-	private int LastAdvertiseId;
-	@PostMapping(value="/advertise", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Advertise CreateNewAdvertise(@RequestBody Advertise advertise, @RequestHeader("auth-token") String authToken) {
-		System.out.println("Auth Token :" +authToken);
-		advertise.setId(++LastAdvertiseId);
-		advertises.add(advertise);
-		return advertise;
+	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Advertise> updateAdvertise(@RequestBody Advertise advertise, @RequestHeader("auth-token") String authToken,
+			@PathVariable("id") int advertiseId) {
+		Advertise responseAdvertise = advertisesService.updateAdvertise(advertise, authToken , advertiseId);
+		return new ResponseEntity<Advertise>(responseAdvertise, HttpStatus.OK);
 	}
 
-	//8 Updating by using PUT Method
-	@PostMapping(value="/advertise/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Advertise updateAdvertise(@PathVariable("id") int advertiseId, @RequestBody Advertise advertise)
-	{
-		for(Advertise advertise1:advertises)
-		{
-			if(advertise1.getId()==advertiseId)
-			{
-				advertise1.setTitle(advertise.getTitle());
-				advertise1.setPrice(advertise1.getPrice());
-				advertise1.setCategory(advertise1.getCategory());
-				advertise1.setDescription(advertise1.getDescription());
-				advertise1.setUsername(advertise1.getUsername());
-				advertise1.setCategoryName(advertise1.getCategoryName());
-				advertise1.setCreatedDate(advertise1.getCreatedDate());
-				advertise1.setStatus(advertise1.getStatus());
-				advertise1.setStatusName(advertise1.getStatusName());
-				advertise1.setModifiedDate(advertise1.getModifiedDate());
-				
-				return advertise1;
-				
-			}
-		}
-		return null;
-		}
-	*/
+	@GetMapping(value = "/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Advertise> getAdvertiseById(@RequestHeader("auth-token") String authToken,
+			@PathVariable("postId") int postId) {
+		Advertise advertise = advertisesService.getAdvertiseById(authToken, postId);
+		return new ResponseEntity<Advertise>(advertise, HttpStatus.OK);
 	}
+	
+	@GetMapping(value = "/user/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Advertise> getAdvertiseByUserId(@RequestHeader("auth-token") String authToken,
+			@PathVariable("postId") int postId) {
+		Advertise advertise = advertisesService.getAdvertiseByUserId(authToken, postId);
+		return new ResponseEntity<Advertise>(advertise, HttpStatus.OK);
+
+	}
+}
